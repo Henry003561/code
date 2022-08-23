@@ -1,10 +1,13 @@
 #include <iostream>
 using namespace std;
+#include <string>
 
 int main()
 {
-    cout <<"Hello World"<<endl;
+    int a;
+    double b;
+    
+    
     system("pause");
     return 0;
-    
 }
