@@ -1,6 +1,7 @@
 import os
 import requests
 from lxml import etree
+import csv
 # 创建数据储存文件
 if not os.path.exists('./数据集'):
     os.mkdir('./数据集')
@@ -40,6 +41,7 @@ for x in range(1,3):
             download_title = li.xpath('./a/text()')[0]
             content_code = requests.get(url=download_url, headers=headers).content
             fileName = fp1+'/'+download_title
+            
             with open(fileName, 'wb') as fp:
                 fp.write(content_code)
-                print(detail_title+'爬取完成!!!')
+                print(detail_title+'爬取成功!!!')
