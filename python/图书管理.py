@@ -1,7 +1,8 @@
 import pymysql
 import tkinter as tk
 from tkinter import messagebox
-import email
+from email.mime.text import MIMEText
+import smtplib
 import random
 
 class StartPage:
@@ -38,7 +39,7 @@ class Sigin:
             self.conn.commit()
             self.a = self.cursor.fetchall()
             messagebox.showinfo(title="登录操作", message='登录成功')
-            #TODO 进入下一个窗口
+            #TODO 进入Bms
 
         except Exception as e:
             messagebox.showerror(title="登录操作",message="登录失败")
@@ -74,28 +75,53 @@ class Signup:
         self.cursor = self.conn.cursor()
     #TODO 邮件发送功能
     def email_send(self):
+        mail_host = 'smtp.163.com'
+        mail_user = 'hgpfj016'
+        mail_pass = 'ENKCEDSUODGKDAGF'
+        sender = 'hgpfj016@163.com'
+        receivers = [self.email]
         j = 6
         code_list = random.sample(range(0,9), j)
+        self.code_check = ''
         for code in code_list:
-            self.code_check = code
-        
+            self.code_check = self.code_check.join(str(code))
+        message = MIMEText('验证码：'+self.code_check, 'plain', 'utf-8')
+        message['Subject'] = 'title'
+        message['From'] = sender
+        message['To'] = receivers[0]
+        try:
+            stmpObj = smtplib.SMTP()
+            stmpObj.connect(mail_host, 25)
+            stmpObj.login(mail_user, mail_pass)
+            stmpObj.sendmail(sender, receivers, message.as_string())
+            stmpObj.quit()
+        except smtplib.SMTPException as e:
+            messagebox.showwarning(title='邮件操作', message='请检查你的邮箱地址')
         self.Captcha_code()
     
     def Captcha_code(self):
-        self.code_label = tk.Label(self.windows, text="验证码")
+        self.windows.destroy()
+        self.captcha = tk.Tk()
+        self.captcha.title("图书管理系统")
+        self.code_label = tk.Label(self.captcha, text="验证码")
         self.code_label.pack()
-        self.code_entry = tk.Entry(self.windows)
+        self.code_entry = tk.Entry(self.captcha)
         self.code_entry.pack()
         self.code = self.code_entry.get()
+        #验证码判断功能
         def code_jugement():
-            pass
-        self.yes_button = tk.Button(self.windows, text='确认', command=code_jugement)
+            if self.code ==  self.code_check:
+                self.signup()
+            else:
+                messagebox.showwarning(title='验证码', message='验证码错误')
+        self.yes_button = tk.Button(self.captcha, text='确认', command=code_jugement)
     def signup(self):
         try:
             self.cursor.execute('insert into Bms ("%s", "%s", "%s")'%(self.username, self.password, self.email))
             self.conn.commit()
+            #TODO 进入Bms
         except Exception as e:
-            pass
+            self.conn.rollback()
     
     def exit(self):
         startpage = StartPage(self.windows)
@@ -106,7 +132,7 @@ class Signup:
         self.username_label.pack()
         self.username_entry = tk.Entry(self.windows)
         self.username_entry.pack()
-        self.uername = self.username_entry.get()
+        self.username = self.username_entry.get()
         self.password_label = tk.Label(self.windows, text="密码")
         self.password_label.pack()
         self.password_entry = tk.Entry(self.windows, show="*")
@@ -119,9 +145,12 @@ class Signup:
         self.email = self.email_entry.get()
         self.signup_button = tk.Button(self.windows, text="注册", command=self)
         self.signup_button.pack()
-        self.exit_button = tk.Button(self.windows, text="退出注册", command=self.exit)
+        self.exit_button = tk.Button(self.windows, text="退出", command=self.exit)
 
 class Bms:
+    pass
+
+class Book_insert:
     def __init__(self, parent_windows):
         parent_windows.destroy()
         self.conn = pymysql.connect(user='root', port=3306, host='localhost', password='hwh003561', database='Bms', charset='utf8')
