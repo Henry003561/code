@@ -40,7 +40,7 @@ class Sigin:
             self.a = self.cursor.fetchall()
             messagebox.showinfo(title="登录操作", message='登录成功')
             #TODO 进入Bms
-
+            bms = Bms(self.windows)
         except Exception as e:
             messagebox.showerror(title="登录操作",message="登录失败")
         
@@ -73,7 +73,7 @@ class Signup:
         self.windows.title("图书管理系统")
         self.conn = pymysql.connect(user='root', port=3306, host='localhost', password='hwh003561', database='Bms', charset='utf8')
         self.cursor = self.conn.cursor()
-    #TODO 邮件发送功能
+    # 邮件发送功能
     def email_send(self):
         mail_host = 'smtp.163.com'
         mail_user = 'hgpfj016'
@@ -95,9 +95,11 @@ class Signup:
             stmpObj.login(mail_user, mail_pass)
             stmpObj.sendmail(sender, receivers, message.as_string())
             stmpObj.quit()
+            self.Captcha_code()
         except smtplib.SMTPException as e:
+            print(e)
             messagebox.showwarning(title='邮件操作', message='请检查你的邮箱地址')
-        self.Captcha_code()
+        
     
     def Captcha_code(self):
         self.windows.destroy()
@@ -120,6 +122,8 @@ class Signup:
             self.cursor.execute('insert into Bms ("%s", "%s", "%s")'%(self.username, self.password, self.email))
             self.conn.commit()
             #TODO 进入Bms
+            bms = Bms(self.captcha)
+
         except Exception as e:
             self.conn.rollback()
     
@@ -143,12 +147,18 @@ class Signup:
         self.email_entry = tk.Entry(self.windows)
         self.email_entry.pack()
         self.email = self.email_entry.get()
-        self.signup_button = tk.Button(self.windows, text="注册", command=self)
+        self.signup_button = tk.Button(self.windows, text="注册", command=self.email_send)
         self.signup_button.pack()
         self.exit_button = tk.Button(self.windows, text="退出", command=self.exit)
+        self.exit_button.pack()
 
 class Bms:
-    pass
+    def __init__(self, parent_windows):
+        parent_windows.destroy()
+        self.conn = pymysql.connect(user='root', port=3306, host='localhost', password='hwh003561', database='Bms', charset='utf8')
+        self.cursor = self.conn.cursor()
+    
+
 
 class Book_insert:
     def __init__(self, parent_windows):
