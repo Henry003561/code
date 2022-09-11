@@ -74,10 +74,19 @@ class Signup:
         self.conn = pymysql.connect(user='root', port=3306, host='localhost', password='hwh003561', database='Bms', charset='utf8')
         self.cursor = self.conn.cursor()
     # 邮件发送功能
+    def get_user(self):
+        if self.username == '' or self.password == '':
+            messagebox.showwarning(title='登录操作', message='请输入用户名或密码')
+        else:
+            if self.password == self.check_password:
+                self.email_send()
+            else:
+                messagebox.showwarning(title='登录操作', message='再次确认密码')
+        
     def email_send(self):
         mail_host = 'smtp.163.com'
         mail_user = 'hgpfj016'
-        mail_pass = 'ENKCEDSUODGKDAGF'
+        mail_pass = 'JBLBFTYFKXJDOXOD'
         sender = 'hgpfj016@163.com'
         receivers = [self.email]
         j = 6
@@ -91,7 +100,7 @@ class Signup:
         message['To'] = receivers[0]
         try:
             stmpObj = smtplib.SMTP()
-            stmpObj.connect(mail_host, 25)
+            stmpObj.connect(mail_host, 465)
             stmpObj.login(mail_user, mail_pass)
             stmpObj.sendmail(sender, receivers, message.as_string())
             stmpObj.quit()
@@ -142,12 +151,17 @@ class Signup:
         self.password_entry = tk.Entry(self.windows, show="*")
         self.password_entry.pack()
         self.password = self.password_entry.get()
+        self.check_password_label = tk.Label(self.windows, text='确认密码')
+        self.check_password_label.pack()
+        self.check_password_entry = tk.Entry(self.windows, show='*')
+        self.check_password_entry.pack()
+        self.check_password = self.check_password_entry.get()
         self.email_label = tk.Label(self.windows, text="邮箱地址")
         self.email_label.pack()
         self.email_entry = tk.Entry(self.windows)
         self.email_entry.pack()
         self.email = self.email_entry.get()
-        self.signup_button = tk.Button(self.windows, text="注册", command=self.email_send)
+        self.signup_button = tk.Button(self.windows, text="注册", command=self.get_user)
         self.signup_button.pack()
         self.exit_button = tk.Button(self.windows, text="退出", command=self.exit)
         self.exit_button.pack()
