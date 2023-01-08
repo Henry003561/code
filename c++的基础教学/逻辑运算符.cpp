@@ -4,6 +4,7 @@ using namespace std;
 
 int main()
 {
+    bool size;
     int a;
     int b;
     cout << "a=";
